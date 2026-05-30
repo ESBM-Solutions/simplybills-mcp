@@ -1,0 +1,50 @@
+{
+  "name": "simplybills-mcp",
+  "version": "0.1.0",
+  "description": "Connect ChatGPT, Claude or any MCP client to your SimplyBills account to create and manage invoices, quotes, reminders, customers and expenses with your own AI.",
+  "keywords": [
+    "mcp",
+    "modelcontextprotocol",
+    "model-context-protocol",
+    "simplybills",
+    "invoice",
+    "e-rechnung",
+    "rechnung",
+    "chatgpt",
+    "claude"
+  ],
+  "homepage": "https://simplybills.de/ki-schnittstelle",
+  "bugs": {
+    "url": "https://github.com/Dkogan90/simplybills-mcp/issues"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Dkogan90/simplybills-mcp.git"
+  },
+  "license": "MIT",
+  "author": "SimplyBills",
+  "type": "module",
+  "bin": {
+    "simplybills-mcp": "dist/index.js"
+  },
+  "files": [
+    "dist",
+    "README.md",
+    "LICENSE"
+  ],
+  "engines": {
+    "node": ">=18"
+  },
+  "scripts": {
+    "build": "tsc",
+    "prepublishOnly": "npm run build",
+    "start": "node dist/index.js"
+  },
+  "dependencies": {
+    "@modelcontextprotocol/sdk": "^1.29.0"
+  },
+  "devDependencies": {
+    "@types/node": "^22.10.0",
+    "typescript": "^5.6.0"
+  }
+}
