@@ -17,11 +17,65 @@ This repository also contains a small local bridge (stdio) for clients that can 
 ## What your AI can do
 
 - Read invoices, quotes, cancellations, customers, company data and expenses
-- Create and update drafts: invoices, quotes, customers, expenses (Pro and Max)
-- Send invoices, quotes and reminders, and delete documents (Max only, always with your confirmation)
+- Create and update drafts: invoices, quotes, cancellations, customers, expenses, company profile (Pro and Max)
+- Send invoices, quotes, cancellations and reminders, and delete drafts, customers, expenses and catalog items (Max only, always with your confirmation)
 - Find overdue invoices and draft reminders (the payment-coach flow)
+- Max also adds receivables management, business figures, a service catalog and batch work (see [Max features](#max-features))
 
 Amounts, tax and the running invoice number are calculated by SimplyBills, so the AI cannot miscalculate them.
+
+### Plans and scopes
+
+The server grants OAuth scopes by plan. Free has no MCP access.
+
+| Scope | Allows | Plan |
+|-------|--------|------|
+| `read` | Look up and search invoices, quotes, cancellations, customers, expenses, company profile and plan | Pro, Max |
+| `write` | Create and edit drafts, customers, expenses and the company profile | Pro, Max |
+| `send` | Send documents and reminders by email, confirmation required | Max |
+| `delete` | Delete drafts, customers, expenses and catalog items, confirmation required | Max |
+
+SimplyBills currently exposes 49 tools: 22 with `read`, 15 with `write`, 6 with `send` and 6 with `delete`. 27 of them need Max. The complete list with titles, scopes and example prompts is on [simplybills.de/ki-schnittstelle/funktionen](https://simplybills.de/ki-schnittstelle/funktionen).
+
+## Max features
+
+Four areas are Max only. Their tools also use the scopes above, so a `read` tool here still needs the Max plan. Full descriptions and example prompts: [Forderungsmanagement](https://simplybills.de/ki-schnittstelle/funktionen#mahnungen), [Geschäftszahlen](https://simplybills.de/ki-schnittstelle/funktionen#zahlen), [Leistungskatalog](https://simplybills.de/ki-schnittstelle/funktionen#katalog), [Stapel und Umzug](https://simplybills.de/ki-schnittstelle/funktionen#stapel).
+
+### Receivables management
+
+Shows who pays late and for how long, and reminds in three stages (payment reminder, first reminder, final reminder). Default interest under § 288 BGB can be included: 9 percentage points above the base rate plus a 40 euro flat fee for businesses, 5 points for consumers.
+
+- `get_receivables` (read): open items by age, average payment time per customer, next reminder stage with an interest preview
+- `send_reminders_batch` (send): remind up to 20 overdue invoices at once, one confirmation for the whole batch
+- `update_dunning_settings` (write): your own reminder texts and the default for default interest
+
+`list_overdue_invoices` and `send_reminder` for single invoices stay as before (`list_overdue_invoices` on Pro and Max, `send_reminder` on Max).
+
+### Business figures
+
+Revenue, VAT and profit in the chat, calculated from the same numbers as your ELSTER and EÜR exports. This does not replace tax advice.
+
+- `get_revenue_report` (read): net, VAT and gross by month, quarter, year or customer, with prior-period comparison
+- `get_vat_summary` (read): VAT, input tax and payable amount, by invoiced or paid basis
+- `get_profit` (read): profit as EÜR, income by payment date, expenses by category
+- `get_customer_stats` (read): revenue and share per customer
+
+### Service catalog
+
+Your services and prices in one place. The AI takes prices from the catalog instead of guessing, and `create_invoice_draft` can use them.
+
+- `search_items`, `get_item` (read): find and open catalog items
+- `upsert_item`, `import_items` (write): add or change items, import a price list from CSV or a list after a preview
+- `delete_item` (delete): remove an item; existing invoices and quotes stay unchanged
+
+### Batch work and importing old invoices
+
+For people who write many invoices at once or move over from another program.
+
+- `create_invoices_batch` (write): up to 50 invoice drafts in one call
+- `import_historical_invoices` (write): up to 50 invoices from your previous tool, with original number, date and status. No email goes out and no new PDF is created.
+- `mark_invoices_paid` (write): up to 50 invoices set to paid, each with its own payment date
+- `send_invoices_batch` (send): up to 10 drafts sent after a single confirmation
 
 ## Setup
 
