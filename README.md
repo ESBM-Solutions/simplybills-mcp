@@ -43,11 +43,11 @@ Four areas are Max only. Their tools also use the scopes above, so a `read` tool
 
 ### Receivables management
 
-Shows who pays late and for how long, and reminds in three stages (payment reminder, first reminder, final reminder). Default interest under § 288 BGB can be included: 9 percentage points above the base rate plus a 40 euro flat fee for businesses, 5 points for consumers.
+Shows who pays late and for how long, and reminds in three stages (payment reminder, first reminder, final reminder). Late-payment interest under § 288 BGB can be included: 9 percentage points above the base rate plus a 40 euro flat fee for businesses, 5 points for consumers.
 
 - `get_receivables` (read): open items by age, average payment time per customer, next reminder stage with an interest preview
 - `send_reminders_batch` (send): remind up to 20 overdue invoices at once, one confirmation for the whole batch
-- `update_dunning_settings` (write): your own reminder texts and the default for default interest
+- `update_dunning_settings` (write): your own reminder texts and whether late-payment interest is included by default
 
 `list_overdue_invoices` and `send_reminder` for single invoices stay as before (`list_overdue_invoices` on Pro and Max, `send_reminder` on Max).
 
@@ -56,7 +56,7 @@ Shows who pays late and for how long, and reminds in three stages (payment remin
 Revenue, VAT and profit in the chat, calculated from the same numbers as your ELSTER and EÜR exports. This does not replace tax advice.
 
 - `get_revenue_report` (read): net, VAT and gross by month, quarter, year or customer, with prior-period comparison
-- `get_vat_summary` (read): VAT, input tax and payable amount, by invoiced or paid basis
+- `get_vat_summary` (read): VAT, input tax and payable amount, on an accrual (Soll) or cash (Ist) basis
 - `get_profit` (read): profit as EÜR, income by payment date, expenses by category
 - `get_customer_stats` (read): revenue and share per customer
 
