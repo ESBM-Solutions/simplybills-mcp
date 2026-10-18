@@ -35,7 +35,7 @@ The server grants OAuth scopes by plan. Free has no MCP access.
 | `send` | Send documents and reminders by email, confirmation required | Max |
 | `delete` | Delete drafts, customers, expenses and catalog items, confirmation required | Max |
 
-SimplyBills currently exposes 49 tools: 22 with `read`, 15 with `write`, 6 with `send` and 6 with `delete`. 27 of them need Max. The complete list with titles, scopes and example prompts is on [simplybills.de/ki-schnittstelle/funktionen](https://simplybills.de/ki-schnittstelle/funktionen).
+SimplyBills currently exposes 49 tools: 22 with `read`, 15 with `write`, 6 with `send` and 6 with `delete`. 25 of them need Max. The complete list with titles, scopes and example prompts is on [simplybills.de/ki-schnittstelle/funktionen](https://simplybills.de/ki-schnittstelle/funktionen).
 
 ## Max features
 
