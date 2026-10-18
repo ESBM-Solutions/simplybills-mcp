@@ -2,9 +2,17 @@
 
 Connect ChatGPT, Claude or any MCP-capable client to your [SimplyBills](https://simplybills.de) account. Your own AI can then read your data and create invoices, quotes, customers and expenses, and (on the Max plan) send and delete documents. Every send or delete asks you for confirmation first.
 
-This is a small bridge: a local MCP server that the client launches, which forwards everything to the SimplyBills server at `https://app.simplybills.de/api/mcp` over an authenticated connection. The login runs once in your browser, no tokens to copy.
+SimplyBills runs a remote MCP server at:
 
-> Requires a SimplyBills account on the Pro or Max plan. The KI-Schnittstelle (MCP) is included there. See [simplybills.de/ki-schnittstelle](https://simplybills.de/ki-schnittstelle).
+```
+https://app.simplybills.de/api/mcp
+```
+
+It uses OAuth: you log in once in your browser and allow access, no tokens to copy. Clients that support remote MCP servers connect to it directly, so there is nothing to install.
+
+This repository also contains a small local bridge (stdio) for clients that can only launch a local command. Most people do not need it. See [Local bridge](#local-bridge-for-stdio-only-clients) below.
+
+> Requires a SimplyBills account on the Pro or Max plan. The KI-Schnittstelle (MCP) is included there. Step-by-step guide with screenshots (German): [simplybills.de/ki-schnittstelle/anleitung](https://simplybills.de/ki-schnittstelle/anleitung).
 
 ## What your AI can do
 
@@ -17,49 +25,73 @@ Amounts, tax and the running invoice number are calculated by SimplyBills, so th
 
 ## Setup
 
-You do not install anything by hand. Point your client at the command below; it runs through `npx`.
+### Claude (claude.ai and the Claude apps)
 
-### Claude Desktop
+1. Open claude.ai, go to Customize, then Connectors.
+2. Under Add, choose "Add custom connector".
+3. Enter `SimplyBills` as the name and `https://app.simplybills.de/api/mcp` as the URL, then continue.
+4. Log in to SimplyBills and allow access.
 
-Open Settings, Developer, Edit Config and add:
+A custom connector also works on the free Claude plan.
+
+### ChatGPT
+
+1. Open [chatgpt.com/plugins](https://chatgpt.com/plugins), click Add, then "Add custom MCP server".
+2. Enter `SimplyBills` as the name and `https://app.simplybills.de/api/mcp` as the server URL. Leave authentication on OAuth.
+3. Log in to SimplyBills and allow access.
+
+As far as we know, custom MCP servers need a paid ChatGPT plan.
+
+### Claude Code
+
+```bash
+claude mcp add --transport http --scope user simplybills https://app.simplybills.de/api/mcp
+```
+
+Then type `/mcp` in Claude Code, select SimplyBills and log in. If you already connected SimplyBills on claude.ai, it is available in Claude Code with the same Claude account.
+
+### Codex
+
+```bash
+codex mcp add simplybills --url https://app.simplybills.de/api/mcp
+codex mcp login simplybills
+```
+
+The second command opens the login in your browser. The Codex app and editor extension use the same configuration.
+
+### Other clients
+
+If your client can add a remote MCP server by URL (Streamable HTTP with OAuth), point it at `https://app.simplybills.de/api/mcp` and follow the login.
+
+## Local bridge for stdio-only clients
+
+Only needed for clients that cannot connect to a remote MCP server and can only launch a local command. The bridge runs as a local MCP server and forwards everything to `https://app.simplybills.de/api/mcp` over an authenticated connection.
+
+> The bridge is not published on npm yet, so `npx simplybills-mcp` does not work. Build it from source for now.
+
+```bash
+git clone https://github.com/ESBM-Solutions/simplybills-mcp.git
+cd simplybills-mcp
+npm install
+npm run build
+```
+
+Then add it to your client's MCP configuration, using the absolute path to `dist/index.js`:
 
 ```json
 {
   "mcpServers": {
     "simplybills": {
-      "command": "npx",
-      "args": ["-y", "simplybills-mcp"]
+      "command": "node",
+      "args": ["/absolute/path/to/simplybills-mcp/dist/index.js"]
     }
   }
 }
 ```
 
-Restart Claude Desktop. On first use a browser window opens, you log in to SimplyBills and allow access. Done.
+Restart the client. On first use a browser window opens, you log in to SimplyBills and allow access.
 
-### Cursor
-
-`~/.cursor/mcp.json` (or the project `.cursor/mcp.json`):
-
-```json
-{
-  "mcpServers": {
-    "simplybills": {
-      "command": "npx",
-      "args": ["-y", "simplybills-mcp"]
-    }
-  }
-}
-```
-
-### Cline, Windsurf, VS Code and other MCP clients
-
-Use the same `command` / `args` shape in that client's MCP server configuration.
-
-### ChatGPT and Claude.ai (web)
-
-These support remote connectors directly, so you do not need this package. Add a custom connector pointing at `https://app.simplybills.de/api/mcp` and follow the login. Use this package for desktop or editor clients that launch a local command.
-
-## How the login works
+### How the login works
 
 On first run the bridge:
 
@@ -70,7 +102,7 @@ On first run the bridge:
 
 After that it reuses and refreshes those tokens silently. You never paste credentials, and the AI only ever receives a short-lived token bound to your account, which you can revoke any time under Einstellungen, KI-Schnittstelle.
 
-## Configuration
+### Configuration
 
 Environment variables, all optional:
 
@@ -80,15 +112,15 @@ Environment variables, all optional:
 You can also pass the server URL as the first argument:
 
 ```json
-{ "command": "npx", "args": ["-y", "simplybills-mcp", "http://localhost:3001/api/mcp"] }
+{ "command": "node", "args": ["/absolute/path/to/simplybills-mcp/dist/index.js", "http://localhost:3001/api/mcp"] }
 ```
 
 ## Security
 
-- Tokens are stored locally under `~/.simplybills/` (files `0600`), never in the config you share.
-- The connection is audience-bound to the SimplyBills MCP endpoint and uses PKCE (S256).
+- The connection uses OAuth 2.1 with PKCE (S256) and is audience-bound to the SimplyBills MCP endpoint.
 - Sending and deleting always require a confirmation step that the AI must surface to you before it runs.
 - Revoke any connected AI at any time in SimplyBills under Einstellungen, KI-Schnittstelle.
+- The local bridge stores its tokens under `~/.simplybills/` (files `0600`), never in the config you share.
 
 ## Development
 
